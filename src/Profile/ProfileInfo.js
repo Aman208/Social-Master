@@ -5,24 +5,11 @@ import {
   Form,
   Input,
   Radio,
-  Grid,
-  Select,
-  TextArea,
-  Label,
-  Icon,
   Dimmer,
   Loader
 } from 'semantic-ui-react'
-
 import moment from "moment";
-
 import fire from '../firebase';
-
-
-
-
-
-
 
 
 const options = [
@@ -37,7 +24,6 @@ class ProfileInfo extends Component {
         super(props);
 
         this.state= {
-         
                    fname: null , 
                    lname: null,
                    about : null,
@@ -45,11 +31,9 @@ class ProfileInfo extends Component {
                    dd : 1,
                    mm : 4,
                    yyyy : 1999,
-                   sex : null,
+                   gender : null,
                    chk: false ,
-                   image:""
-                 ,
-
+                   image:"",
         loading : false ,
         msg: ""
             
@@ -70,35 +54,41 @@ class ProfileInfo extends Component {
         let lname = this.state.lname;
         let image = this.state.image;
         let Dob = `${this.state.dd}-${this.state.mm}-${this.state.yyyy}`;
-        
         let timestamp = moment().format("LLL");
         let contact = this.state.contact;
-        let  sex = this.state.sex;
+        let  gender = this.state.gender;
         let about = this.state.about ;
-         let chk = this.state.chk ;
-        const { currentUser } = fire.auth();
+        let chk = this.state.chk ;
+        const currentUser  = localStorage.getItem("email");
 
         console.log(moment(Dob, "DD-MM-YYYY").isValid());
 
         if(moment(Dob, "DD-MM-YYYY").isValid() && chk === true )
         {fire
           .database()
-          .ref(`profileInfo/${currentUser.uid}/`)
+          .ref(`profileInfo/`)
           .push({
             fname ,
             lname,
             image ,
             Dob ,
             timestamp,
-            user: currentUser.email ,
+            user: currentUser,
             contact ,
             about ,
-            sex
+            gender
           })
-          .then(() => {
+          .then((res) => {
+
             this.setState({
               loading: false , msg : "Successful Done"
             });
+
+            localStorage.setItem("ProfileId" , res.key );
+
+            localStorage.setItem("name", this.state.fname + this.state.lname);
+
+            this.props.history.push("/");
           });
     }
     else{
@@ -121,18 +111,18 @@ class ProfileInfo extends Component {
 
     handleCheck = e => {
         this.setState({ chk : !this.state.chk });
-        console.log(this.state);
+        
       };
 
-      
+      handleDropDownChange = (e, { value  , name}) => {
+         e.preventDefault();
+        this.setState({  [name] :  value})
+        console.log(this.state);
+       
+       }
 
 
-    
-  
   render() {
-     
-
-  
     return (  <div style={{ backgroundColor: "#f9f9f9",
     marginRight: "10vh", marginLeft: "10vh",padding:"5px", marginTop:"5vh" , height:'auto' }}>
        <h1 style={{color:"red"}} > ADD Profile Info </h1>
@@ -154,8 +144,8 @@ class ProfileInfo extends Component {
             label='Gender'
             options={options}
             placeholder='Gender'
-            name='sex'
-            onChange={this.handleChange}
+            name='gender'
+            onChange={this.handleDropDownChange}
           />
         </Form.Group>
 

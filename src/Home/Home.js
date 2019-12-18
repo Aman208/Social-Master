@@ -54,11 +54,15 @@ class Home extends Component {
 
   
   componentWillMount =  () => 
-  {  
+  { 
+    
+    
+
    fire.auth().onAuthStateChanged(user => {
       if (user) {
         this.setState({ ...this.state, loggedIn: true  });
        
+      
       } else {
         this.setState({
           loggedIn: false,
@@ -67,10 +71,33 @@ class Home extends Component {
       }
     });
 
+    
+
+   
+
   
 
       
   };
+
+  componentDidMount =() => {
+
+    let email = localStorage.getItem("email");
+
+    
+    fire
+    .database()
+    .ref(`profileInfo/`)
+    .orderByChild("user")
+    .limitToFirst(1)
+    .equalTo(email)
+    .on("child_added", function(data) {
+       localStorage.setItem("ProfileId" , data.key)  } )
+
+
+
+
+  }
 
   showArticle = () => {
     this.setState({ showArticle: !this.state.showArticle });

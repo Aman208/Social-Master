@@ -11,7 +11,8 @@ import {
   Loader,
   Divider,
   Label,
-  Form
+  Modal,
+  Header
   } from "semantic-ui-react";
 
   import { Route,
@@ -20,6 +21,8 @@ import {
     Switch} from 'react-router-dom';
     
     import moment from 'moment';
+
+    import Comments from '../Component/Comments';
 
   
   class FeedList extends Component {
@@ -120,6 +123,9 @@ import {
           });
       };
 
+     
+
+
     render()
     { return(<div  >
         {this.state.loading ? (
@@ -132,10 +138,31 @@ import {
               { this.state.list.map((item, index) =>
            Object.values(item).map((nestedItem, nestedIndex) => (
             <Card   >
-            <Link to={{
-                  pathname: `/showpost/id=${this.state.keys[index]}/id2=${Object.keys(this.state.list[index])[nestedIndex]}`
-                   }} >  <Image fluid id="mainIMG" src={nestedItem.picture} />
-            </Link>
+
+
+<Modal trigger={ <Image fluid id="mainIMG" src={nestedItem.picture} /> } >
+          <Modal.Header>{nestedItem.title}</Modal.Header>
+          <Image  id="headerContainer" style={{width:"75%" , height:"80%"}} fluid src={nestedItem.picture} />
+          <Modal.Content>
+            <Modal.Description>
+              <Header> Score  :  {nestedItem.score} </Header>
+              <h3><b>
+              {nestedItem.description}
+              </b> </h3>
+            </Modal.Description>
+            
+           <Divider/>
+
+  
+                   
+             <Comments list={nestedItem.comment} key1={this.state.keys[index]}
+              key2={Object.keys(this.state.list[index])[nestedIndex]} />
+            
+          </Modal.Content>
+        </Modal>
+
+ 
+          
               <Card.Content>
                 <Label as="p" color="white" size="large" ribbon>
                   Score : {nestedItem.score}
@@ -197,4 +224,5 @@ import {
     
 
     export default FeedList ;
+
 

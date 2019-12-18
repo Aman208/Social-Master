@@ -6,7 +6,7 @@ import fire from '../firebase'
 import {
   Button,
   Container,
-  Icon,
+  Input,
   Image,
   Comment,
   Header,
@@ -14,7 +14,8 @@ import {
   Loader,
   Divider,
  
-  Form ,
+  Form, 
+  FormTextArea,
  
 } from "semantic-ui-react";
 import "../App.css";
@@ -24,90 +25,62 @@ class Comments extends Component {
     super(props);
     this.state = {
       text: "",
-      loading : true ,
-      commentList : [] ,
-      commentKeys : [] 
-
-      
+    commentList:[]
+    , loading:false 
     };
 
     this.handleChange =  this.handleChange.bind(this);
     this.newComment = this.newComment.bind(this);
   }
 
+  newComment = e =>{
+
+      this.setState({loading :true});
+  
+      let timestamp = moment().format("LLL");
+      let commentText =  this.state.text ;
+      const { currentUser } = fire.auth();
+    
+      let { key1 , key2 } = this.props;
+ 
+      fire
+      .database()
+      .ref(`feed/${key1}/${key2}/comment`)
+      .push({
+         commentText ,
+         timestamp,
+         user: currentUser.email
+      })
+      .then(() => {
+        this.setState({
+          loading: false
+        });
+      })
+      .catch((e) => alert("Some Error Occur"))
+  
+    };
+  
+  
 
   handleChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
-
-  componentWillMount = () => 
-    {
-         console.log(this.props.key2);
-     fire.database()
-        .ref(`/feed/${this.props.key1}/${this.props.key2}/comment`)
-        .on("value", snapshot => {
-          var obj = snapshot.val();
-          console.log(obj);
-          var list = [];
-          var keys = [];
-          for (let a in obj) {
-           list.push(obj[a]);
-            keys.push(a);
-          }
-
-          console.log(list);
-          this.setState({
-            commentList: list,
-            commentKeys: keys,
-            loading: false
-          });
-  
-          
-        });
-  
-        
-    };
-
-  newComment = e =>{
-
-    this.setState({loading :true});
-
-    let timestamp = moment().format("LLL");
-    let commentText =  this.state.text ;
-    const { currentUser } = fire.auth();
-
-    fire
-    .database()
-    .ref(`feed/${this.props.key1}/${this.props.key2}/comment`)
-    .push({
-       commentText ,
-       timestamp,
-       user: currentUser.email
-    })
-    .then(() => {
-      this.setState({
-        loading: false
-      });
-    })
-    .catch((e) => alert("Some Error Occur"))
-
-  };
-
-
+ 
    render()
    { 
-     
+     let { list } = this.props;
+    
+  
+    
        
-    return(<div>
+    return(<div >
 <Comment.Group>
-<Header as='h3' dividing>
-Comments
-</Header>
+<Header as='h3' dividing>Comments</Header>
 
- {this.state.loading ? <Loader active inline='centered' /> : <div>
 
-  { this.state.commentList.map((item, index) => (       
-    <Comment>
+  <div style={{ overflow:"auto" }}>
+   {   Object.values(list).map((item, index) => (       
+   <Comment>
    <Comment.Avatar src='https://react.semantic-ui.com/images/avatar/small/matt.jpg' />
    <Comment.Content>
    <Comment.Author as='a'>{item.user}</Comment.Author>
@@ -118,15 +91,13 @@ Comments
    <Comment.Text>{item.commentText}</Comment.Text>
   
   </Comment.Content>
-      </Comment>
-     )) } </div> 
+     </Comment>
+     )) }  
 
-  }
-
-
-<Form reply >
-<Form.TextArea name="text"  rows={2} onChange={this.handleChange} />
-<Button fluid content='Add Comment' labelPosition='left' icon='edit' primary  onClick={this.newComment}/>
+</div>
+<Form >
+<Form.TextArea   name="text" onChange={this.handleChange} />
+<Button fluid content='Add Comment' icon='edit' primary  onClick={this.newComment}/>
 </Form>
 </Comment.Group>
        
@@ -139,3 +110,7 @@ Comments
 }
 
 export default Comments;
+
+
+
+//

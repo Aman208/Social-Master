@@ -57,10 +57,10 @@ import Navbar from "../Component/Navbar";
   
     // Fetch User Data
     account = () => {
-      const { currentUser } = fire.auth();
+      const uid = localStorage.getItem("uid");
       fire
         .database()
-        .ref(`feed/${currentUser.uid}/`)
+        .ref(`feed/${uid}/`)
         .on("value", snapshot => {
           var obj = snapshot.val();
           var list = [];
@@ -80,10 +80,10 @@ import Navbar from "../Component/Navbar";
   
     delete = index => {
    
-      const { currentUser } = fire.auth();
+      const uid = localStorage.getItem("uid");
       fire
         .database()
-        .ref(`feed/${currentUser.uid}/${this.state.keys[index]}`)
+        .ref(`feed/${uid}/${this.state.keys[index]}`)
         .remove();
     };
   
@@ -98,12 +98,12 @@ import Navbar from "../Component/Navbar";
     };
   
     update = (index) => {
-      const { currentUser } = fire.auth();
+      const uid = localStorage.getItem("uid");
   
       this.setState({ loading: true });
       fire
         .database()
-        .ref(`feed/${currentUser.uid}/${this.state.keys[index]}`)
+        .ref(`feed/${uid}/${this.state.keys[index]}`)
         .update({
           title: this.state.updateTitle,
           description: this.state.updateDescription,

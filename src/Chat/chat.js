@@ -82,6 +82,10 @@ import {
             keys.push(a);
           }
 
+       
+             var obj = JSON.parse(window.localStorage.getItem('user'));
+             console.log(obj.name);
+
           console.log(list);
           this.setState({
             list: list,

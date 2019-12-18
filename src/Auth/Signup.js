@@ -3,6 +3,8 @@ import {
     Grid,
     Loader,
     Divider,
+    Modal ,
+    Header ,
     Message,
   } from "semantic-ui-react";
 
@@ -30,20 +32,21 @@ import {
         user : "",  
         email: "",
         password: "",
-        gender :  "",
+        reEnterpassword:"",
         loading: true,
         error: false,
-        loggedIn: true
+        loggedIn: false,
+        errMsg : ""
       };
     }
   
-    // Form Handle
+    
     handleChange = e => {
       this.setState({ [e.target.name]: e.target.value });
       console.log(this.state);
     };
   
-    // Auth Change Listener
+    
     componentDidMount = () => {
       fire.auth().onAuthStateChanged(user => {
         if (user) {
@@ -57,39 +60,53 @@ import {
     signup = e => {
       this.setState({ loading: true, error: false });
       e.preventDefault();
+
+      let {password , reEnterpassword} = this.state;
+
+    if(password != reEnterpassword)
+    {
+      this.setState({ error : true , errMsg : "Password Not Match !"  , loading : false}); 
+    }
+    else{
+
       fire
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then(u => {
+          let {currentUser} =  fire.auth();
           this.setState({ loading: false });
-          this.props.history.push("/");
+          localStorage.setItem("email", this.state.email);
+          localStorage.setItem("uid" , currentUser.uid);
+          this.props.history.push("/profileinfo");
         })
         .catch(error => {
-          this.setState({ error: true, loading: false });
+          this.setState({ error: true, loading: false , errMsg: "Already Registed" });
         });
+
+      } 
     };
   
     render() {
       return (
         <Grid style={{ backgroundColor: "#f9f9f9", marginTop: "0vh", minHeight: '95vh' }}>
-          <Grid.Column id="headerContainer">
+          <Grid.Column id="headerContainer" >
   
-            {!this.state.loggedIn ?
+           
             <div>
-            <h2 style={{ marginTop: "20vh", textAlign: "center" }}>
+            <h2 style={{ marginTop: "20vh" }}>
               Join Social Master
             </h2>
-            <p style={{  textAlign: "center" }}>
+            <p >
               The best way to discover trends and express yourself.
             </p>
             </div>
-            : null }
+            
   
             {!this.state.loggedIn ? (
-              <Form
-                id="loginForm"
+              <Form id="loginForm"
                 style={{
-                  maxWidth: 450
+                  maxWidth: 450 ,
+                   textAlign: "center" 
                 }}
               >
                 <br />
@@ -97,26 +114,13 @@ import {
                 {this.state.error ? (
                     <Message negative>
                       <Message.Header>
-                        The email you entered is already in use
+                       {this.state.errMsg}
                       </Message.Header>
-                      <p>
-                        Please choose another one or <a ><Link to="/login">login</Link></a> to
-                        your account.
-                      </p>
                     </Message>
                 ) : null}
 
                 <br />
-                <Form.Input
-                  fluid
-                  icon="user"
-                  iconPosition="left"
-                  type="text"
-                  onChange={this.handleChange}
-                  placeholder="UserName"
-                  name="text"
-                  autoComplete="username"
-                />
+              
                 <Form.Input
                   fluid
                   icon="user"
@@ -137,14 +141,17 @@ import {
                   autoComplete="current-password"
                   type="password"
                 />
-                <Form.Select fluid
-                  label='Gender'
-                  options={options}
-                  placeholder='Gender'
-                  name ="gender"
-                  onChange = {this.handleChange}
-                 />
-  
+                <Form.Input
+                  fluid
+                  icon="lock"
+                  iconPosition="left"
+                  onChange={this.handleChange}
+                  placeholder="ReEnter Password"
+                  name="reEnterpassword"
+                  autoComplete="current-password"
+                  type="password"
+                />
+              
                 <div className="ui buttons fluid">
                   <button onClick={this.signup} className="ui button green">
                     Sign up for Social Master
@@ -159,6 +166,7 @@ import {
                 </p>
               </Form>
             ) : null}
+
   
             {this.state.loggedIn ? (
               <p style={{ marginTop: "2%" }}>What are you looking for?</p>
@@ -167,6 +175,8 @@ import {
             {this.state.loading ? (
               <Loader style={{ marginTop: "5%" }} active inline="centered" />
             ) : null}
+
+
           </Grid.Column>
         </Grid>
       );

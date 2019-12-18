@@ -47,7 +47,16 @@ import {
       event.preventDefault();
       fire.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
         .then(u => {
+
+          let {currentUser} = fire.auth();
           this.setState({ loading: false });
+
+          
+          
+          localStorage.setItem("email", this.state.email);
+          localStorage.setItem("uid" , currentUser.uid);
+
+
           this.props.history.push("/");
         })
         .catch(error => {

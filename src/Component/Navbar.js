@@ -19,6 +19,7 @@ export default class Navbar extends Component {
     }
 
     componentWillMount(){
+      
           this.setState({  activeItem : this.props.activeItem });
     }
 
@@ -26,11 +27,9 @@ export default class Navbar extends Component {
   logout =  () =>
   { 
      fire.auth().signOut().then(()=> {
-
-     
-
       this.setState({msg : "Login"});
-       
+      localStorage.setItem("email", "");
+      localStorage.setItem("ProfileId" , "");
       }).catch(function(error) { 
         alert("Logout Error");
       });
@@ -46,7 +45,7 @@ export default class Navbar extends Component {
     const { activeItem , msg } = this.state;
 
     return (
-      <Menu inverted>
+      <Menu inverted fluid>
         <Menu.Item as={ Link }
           name="home"
           color='green'
@@ -65,10 +64,10 @@ export default class Navbar extends Component {
         <Menu.Item as={ Link }
           name='friends'
           color='green'
-          to="/"
+          to="/friends"
           active={activeItem === 'friends'}
           onClick={this.handleItemClick}
-        ><Icon name='handshake'/>friends</Menu.Item>
+        ><Icon name='handshake'/>Friends</Menu.Item>
 
 
         <Menu.Item as={ Link }
@@ -87,21 +86,16 @@ export default class Navbar extends Component {
         
         ><Icon name='edit'/>Account</Menu.Item>
 
-
-        <Menu.Menu position='right'>
-          <Menu.Item>
-            <Input icon='search' placeholder='Search...' />
-          </Menu.Item>
-          <Menu.Item>
-          <img src='https://react.semantic-ui.com/logo.png' />
-        </Menu.Item>
-          <Menu.Item  as={Link }
+         <Menu.Item  as={Link }
             name={this.state.msg}
             active={activeItem === 'logout'}
             to='/login'
             onClick={this.logout}
           ><Icon name='log out'/>Logout</Menu.Item>
-        </Menu.Menu>
+        
+
+
+        
       </Menu>
     )
   }
